@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Retailer {
+  id              String    @id @default(cuid())
+  name            String
+  reputationScore Float
+  reviewsCount    Int
+  logoUrl         String?
+  createdAt       DateTime  @default(now())
+  listings        Listing[]
+  reviews         Review[]
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  imageUrl    String?
+  category    String?
+  createdAt   DateTime  @default(now())
+  listings    Listing[]
+}
+
+model Listing {
+  id                String   @id @default(cuid())
+  productId         String
+  retailerId        String
+  price             Float
+  shippingSpeedDays Int
+  driverErrorRate   Float
+  url               String
+  inStock           Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  retailer          Retailer @relation(fields: [retailerId], references: [id])
+  product           Product  @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([retailerId])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  retailerId String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  retailer   Retailer @relation(fields: [retailerId], references: [id])
+
+  @@index([retailerId])
+}
